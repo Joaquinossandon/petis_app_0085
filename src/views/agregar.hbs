@@ -1,7 +1,7 @@
 <h1>Agregar mascota</h1>
-<form class="mt-5">
+<form class="mt-5" id="pet-form">
     <div class="mb-3">
-        <select class="form-select" aria-label="Default select example">
+        <select class="form-select" name="userId" aria-label="Default select example">
             <option>Selecciona un usuario</option>
             {{#each users}}
                 <option value={{this.id}}>{{this.name}}</option>
@@ -30,3 +30,20 @@
     </div>
     <button type="submit" class="btn btn-primary">Agregar</button>
 </form>
+<script>
+    const form = document.getElementById('pet-form');
+    form.addEventListener('submit', async (event) => { 
+        event.preventDefault()
+        const formData = new FormData(event.target);
+        const userId = formData.get('userId');
+
+        const res = await fetch(`/api/user/${userId}/pet`, {
+            method: "POST",
+            body: formData
+        })
+
+        const resJson = await res.json()
+
+        console.log(resJson)
+    })
+</script>
