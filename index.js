@@ -34,6 +34,15 @@ app.get("/", async (req, res) => {
     });
 });
 
+app.get("/agregar", async (req, res) => {
+    const users = await User.findAll();
+
+    res.render("agregar", {
+        layout: "layouts/main",
+        users,
+    });
+});
+
 app.post("/api/user", async (req, res) => {
     const { name, email } = req.body;
 

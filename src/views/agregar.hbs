@@ -1,0 +1,32 @@
+<h1>Agregar mascota</h1>
+<form class="mt-5">
+    <div class="mb-3">
+        <select class="form-select" aria-label="Default select example">
+            <option>Selecciona un usuario</option>
+            {{#each users}}
+                <option value={{this.id}}>{{this.name}}</option>
+            {{/each}}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="formFile" class="form-label">Carga una foto</label>
+        <input class="form-control" type="file" name="photo" id="file" />
+    </div>
+    <div class="mb-3">
+        <label for="exampleInputPassword1" class="form-label">Nombre mascota</label>
+        <input name="name" type="text" class="form-control" id="pet-name" />
+    </div>
+    <div class="mb-3">
+        <label for="exampleInputPassword1" class="form-label">Especie</label>
+        <input name="specie" type="text" class="form-control" id="pet-specie" />
+    </div>
+    <div class="mb-3">
+        <label for="exampleInputPassword1" class="form-label">Raza</label>
+        <input name="breed" type="text" class="form-control" id="pet-breed" />
+    </div>
+    <div class="mb-3">
+        <label for="exampleInputPassword1" class="form-label">Edad</label>
+        <input name="age" type="number" class="form-control" id="pet-age" />
+    </div>
+    <button type="submit" class="btn btn-primary">Agregar</button>
+</form>

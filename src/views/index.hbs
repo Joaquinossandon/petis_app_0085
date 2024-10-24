@@ -1,4 +1,7 @@
-<h1>Hola soy una vista</h1>
-{{#each pets}}
-    {{> petCard pet=this }}
-{{/each}}
+    <div class="row row-cols-4">
+        {{#each pets}}
+            <div class="col">
+                {{> petCard pet=this }}
+            </div>
+        {{/each}}
+    </div>
