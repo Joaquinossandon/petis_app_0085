@@ -1,0 +1,23 @@
+<h1>Inicia sesión</h1>
+<form class="mt-5" id="login-form">
+    {{> input name="email" type="email" id="user-email" label="Correo electronico" }}
+    {{> input name="password" type="password" id="user-pass" label="Contraseña" }}
+    <button type="submit" class="btn btn-primary">Enviar</button>
+</form>
+<script>
+    const form = document.getElementById('login-form');
+
+    form.addEventListener("submit", async(event) => {
+        event.preventDefault();
+        const formData = new FormData(event.target)
+        const res = await fetch("/api/signin", {
+            method: "POST",
+            body: formData
+        })
+
+        const resJson = await res.json();
+
+        document.cookie = `token=${resJson.token}`
+        location.href = "/agregar"
+    })
+</script>

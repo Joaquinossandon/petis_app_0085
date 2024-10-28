@@ -1,33 +1,13 @@
 <h1>Agregar mascota</h1>
 <form class="mt-5" id="pet-form">
     <div class="mb-3">
-        <select class="form-select" name="userId" aria-label="Default select example">
-            <option>Selecciona un usuario</option>
-            {{#each users}}
-                <option value={{this.id}}>{{this.name}}</option>
-            {{/each}}
-        </select>
-    </div>
-    <div class="mb-3">
         <label for="formFile" class="form-label">Carga una foto</label>
         <input class="form-control" type="file" name="photo" id="file" />
     </div>
-    <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">Nombre mascota</label>
-        <input name="name" type="text" class="form-control" id="pet-name" />
-    </div>
-    <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">Especie</label>
-        <input name="specie" type="text" class="form-control" id="pet-specie" />
-    </div>
-    <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">Raza</label>
-        <input name="breed" type="text" class="form-control" id="pet-breed" />
-    </div>
-    <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">Edad</label>
-        <input name="age" type="number" class="form-control" id="pet-age" />
-    </div>
+    {{> input name="name" type="text" id="pet-name" label="Nombre mascota" }}
+    {{> input name="specie" type="text" id="pet-specie" label="Especie" }}
+    {{> input name="breed" type="text" id="pet-breed" label="Raza" }}
+    {{> input name="age" type="number" id="pet-age" label="Edad" }}
     <button type="submit" class="btn btn-primary">Agregar</button>
 </form>
 <script>
@@ -35,15 +15,18 @@
     form.addEventListener('submit', async (event) => { 
         event.preventDefault()
         const formData = new FormData(event.target);
-        const userId = formData.get('userId');
 
-        const res = await fetch(`/api/user/${userId}/pet`, {
+        const res = await fetch(`/api/user/pet`, {
             method: "POST",
-            body: formData
+            body: formData,
+            headers: {
+                "Authorization": `Bearer ${document.cookie.split("=")[1]}`
+            }
         })
 
         const resJson = await res.json()
 
-        console.log(resJson)
+        alert("La mascota se agregó con éxito")
+        form.reset()
     })
 </script>
