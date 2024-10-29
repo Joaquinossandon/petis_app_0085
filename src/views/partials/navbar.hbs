@@ -1,6 +1,7 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container">
         <a class="navbar-brand" href="#">Navbar</a>
+
         <button
             class="navbar-toggler"
             type="button"
@@ -21,10 +22,28 @@
                         href="/"
                     >Home</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/agregar">Agregar mascota</a>
-                </li>
+                {{#if isAuth}}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/agregar">Agregar mascota</a>
+                    </li>
+                    <li>
+                        <button class="nav-link" id="signout-btn">Cerrar sesión
+                            {{#if isAdmin}} Admin {{else}} user {{/if}}</button>
+                    </li>
+                {{else}}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Iniciar sesión</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register">Registrarse</a>
+                    </li>
+                {{/if}}
             </ul>
         </div>
     </div>
 </nav>
+<script>
+    const signoutBtn = document.getElementById("signout-btn");
+    signoutBtn.addEventListener('click', () => { console.log("Se presionó");
+    document.cookie = "token="; location.href = "/login" })
+</script>

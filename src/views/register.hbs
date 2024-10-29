@@ -1,8 +1,45 @@
 <h1>Registrate</h1>
-<form class="mt-5" id="pet-form">
+<form class="mt-5" id="register-form">
     {{> input name="name" type="text" id="user-name" label="Nombre completo" }}
     {{> input name="email" type="email" id="user-email" label="Correo electronico" }}
     {{> input name="password" type="password" id="user-pass" label="Contraseña" }}
-    {{> input type="password" id="user-confirm-pass" label="Confirma tu contraseña" }}
+    {{> input name="repassword" type="password" id="user-confirm-pass" label="Confirma tu contraseña" }}
+    <div class="alert alert-danger d-none" role="alert">
+        
+    </div>
     <button type="submit" class="btn btn-primary">Enviar</button>
 </form>
+<script>
+    const form = document.getElementById("register-form");
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault()
+        const alert = document.querySelector("[role='alert']")
+        
+        const formData = new FormData(event.target)
+        const password = formData.get('password')
+        const rePassword = formData.get('repassword')
+
+        if(password !== rePassword) {
+            alert.classList.remove('d-none');
+            alert.textContent = 'Las contraseñas no coinciden'
+            return
+        }
+
+        alert.classList.add("d-none");
+
+        const res = await fetch("/api/signup", {
+            method: "POST",
+            body: formData
+        })
+
+        if(res.ok) {
+            location.href = "/login"
+        } else {
+            alert.classList.remove('d-none');
+            alert.textContent = 'Algo ocurrió'
+            return
+        }
+
+
+    })
+</script>

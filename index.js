@@ -14,7 +14,10 @@ const User = require("./src/models/User.model");
 const Pet = require("./src/models/Pet.model");
 const sequelize = require("./src/config/db.config");
 const cookieParse = require("./src/middleware/cookieParse");
-const { verifyAccessView, verifyAccessApi } = require("./src/middleware/tokenVerify");
+const {
+    verifyAccessView,
+    verifyAccessApi,
+} = require("./src/middleware/tokenVerify");
 
 const app = express();
 
@@ -30,6 +33,13 @@ app.use(express.static(path.join(__dirname, "/public")));
 
 hbs.registerPartials(__dirname + "/src/views/partials", (err) => {});
 
+hbs.registerHelper("isAuth", () => {
+    return app.locals.isAuth;
+});
+hbs.registerHelper("isAuth", () => {
+    return app.locals.isAdmin;
+});
+
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "/src/views"));
 
@@ -41,13 +51,13 @@ app.get("/", async (req, res) => {
     });
 });
 
-app.get("/login", (req, res) => {
+app.get("/login", cookieParse, verifyAccessView, (req, res) => {
     res.render("login", {
         layout: "layouts/main",
     });
 });
 
-app.get("/register", cookieParse, verifyAccessView, (req, res) => {
+app.get("/register", (req, res) => {
     if (req.user) {
         res.redirect("/agregar");
     } else {
@@ -59,11 +69,17 @@ app.get("/register", cookieParse, verifyAccessView, (req, res) => {
 
 app.get("/agregar", cookieParse, verifyAccessView, async (req, res) => {
     try {
-        const users = await User.findAll();
+        if (req.user.role === "admin") {
+            const users = await User.findAll();
 
-        res.render("agregar", {
+            return res.render("admin/agregar", {
+                layout: "layouts/main",
+                users,
+            });
+        }
+
+        return res.render("agregar", {
             layout: "layouts/main",
-            users,
         });
     } catch (error) {
         res.redirect("/login");
@@ -104,9 +120,13 @@ app.post("/api/signin", async (req, res) => {
         });
     }
 
-    const token = jwt.sign({ user_id: user.id }, process.env.TOKEN_SECRET, {
-        expiresIn: "30m",
-    });
+    const token = jwt.sign(
+        { user_id: user.id, role: user.role },
+        process.env.TOKEN_SECRET,
+        {
+            expiresIn: "30m",
+        }
+    );
 
     res.status(200).json({ token });
 });
@@ -139,6 +159,12 @@ app.post("/api/user/pet", verifyAccessApi, async (req, res) => {
 const main = async () => {
     try {
         await sequelize.sync({ alter: true });
+        User.create({
+            name: "admin",
+            email: "admin@petis.cl",
+            password: await bcrypt.hash("admin123", 10),
+            role: "admin",
+        });
         app.listen(3000, () => {
             console.log("Servidor escuchando en http://localhost:3000/");
         });

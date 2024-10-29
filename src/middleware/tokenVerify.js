@@ -9,17 +9,28 @@ const tokenVerify = (token) => {
 
 const verifyAccessView = (req, res, next) => {
     const tokenCookie = req.cookies.token;
+    const excluded = ["/login", "/register"];
     try {
         const token = tokenVerify(tokenCookie);
         req.user = token;
-        next();
+        req.app.locals.isAuth = true;
+        req.app.locals.isAdmin = token.role === "admin";
+        if (excluded.includes(req.path)) {
+            return res.redirect("/");
+        }
+        return next();
     } catch (error) {
-        res.redirect("/login");
+        req.app.locals.isAuth = false;
+        req.app.locals.isAdmin = false;
+        if (excluded.includes(req.path)) {
+            return next();
+        }
+        return res.redirect("/login");
     }
 };
 
 const verifyAccessApi = (req, res, next) => {
-    const token = req.headers.authorization?.split(" ")[1]; // Bearer qefui2832932
+    const token = req.headers.authorization?.split(" ")[1]; // Bearer token
 
     try {
         const tokenPayload = tokenVerify(token);
