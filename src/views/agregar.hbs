@@ -19,9 +19,6 @@
         const res = await fetch(`/api/user/pet`, {
             method: "POST",
             body: formData,
-            headers: {
-                "Authorization": `Bearer ${document.cookie.split("=")[1]}`
-            }
         })
 
         const resJson = await res.json()

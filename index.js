@@ -6,31 +6,33 @@ const express = require("express");
 const fileUpload = require("express-fileupload");
 const hbs = require("hbs");
 const path = require("path");
+
+// encriptar pass
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 
 // Modelos y base de datos
 const User = require("./src/models/User.model");
-const Pet = require("./src/models/Pet.model");
 const sequelize = require("./src/config/db.config");
 const cookieParse = require("./src/middleware/cookieParse");
-const {
-    verifyAccessView,
-    verifyAccessApi,
-} = require("./src/middleware/tokenVerify");
+
+const routes = require("./src/routes");
 
 const app = express();
 
+
+// middlewares
 app.use(
     fileUpload({
         createParentPath: true,
     })
 );
-
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "/public")));
+app.use(cookieParse);
 
+
+// hbs config
 hbs.registerPartials(__dirname + "/src/views/partials", (err) => {});
 
 hbs.registerHelper("isAuth", () => {
@@ -43,128 +45,28 @@ hbs.registerHelper("isAuth", () => {
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "/src/views"));
 
-app.get("/", async (req, res) => {
-    const mascotas = await Pet.findAll();
-    res.render("index", {
-        layout: "layouts/main",
-        pets: mascotas,
-    });
-});
 
-app.get("/login", cookieParse, verifyAccessView, (req, res) => {
-    res.render("login", {
-        layout: "layouts/main",
-    });
-});
+// usa las rutas creadas
+app.use(routes)
 
-app.get("/register", (req, res) => {
-    if (req.user) {
-        res.redirect("/agregar");
-    } else {
-        res.render("register", {
-            layout: "layouts/main",
-        });
-    }
-});
-
-app.get("/agregar", cookieParse, verifyAccessView, async (req, res) => {
-    try {
-        if (req.user.role === "admin") {
-            const users = await User.findAll();
-
-            return res.render("admin/agregar", {
-                layout: "layouts/main",
-                users,
-            });
-        }
-
-        return res.render("agregar", {
-            layout: "layouts/main",
-        });
-    } catch (error) {
-        res.redirect("/login");
-    }
-});
-
-app.post("/api/signup", async (req, res) => {
-    const { name, email, password } = req.body;
-
-    const cryptedPass = await bcrypt.hash(password, 10);
-
-    const user = await User.create(
-        {
-            name,
-            email,
-            password: cryptedPass,
-        },
-        {
-            returning: true,
-        }
-    );
-
-    res.status(200).json(user);
-});
-
-app.post("/api/signin", async (req, res) => {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({
-        where: { email },
-    });
-
-    const isValid = await bcrypt.compare(password, user?.password || "default");
-
-    if (!user || !isValid) {
-        return res.status(400).json({
-            error: "Los datos son incorrectos",
-        });
-    }
-
-    const token = jwt.sign(
-        { user_id: user.id, role: user.role },
-        process.env.TOKEN_SECRET,
-        {
-            expiresIn: "30m",
-        }
-    );
-
-    res.status(200).json({ token });
-});
-
-app.post("/api/user/pet", verifyAccessApi, async (req, res) => {
-    const { user_id } = req.user;
-    const { name, specie, breed, age } = req.body;
-    const { files } = req;
-
-    files.photo.mv(`./public/img/${files.photo.name}`, (err) => {
-        if (err) {
-            console.log(err);
-            throw new Error("No se pudo subir la imagen");
-        }
-    });
-
-    const user = await User.findByPk(user_id);
-
-    const pet = await user.createPet({
-        name,
-        specie,
-        breed,
-        age: Number(age),
-        photo: `/img/${files.photo.name}`,
-    });
-
-    res.status(200).json(pet);
-});
-
+// ejecutamos nuestro servidor
 const main = async () => {
     try {
         await sequelize.sync({ alter: true });
-        User.create({
-            name: "admin",
-            email: "admin@petis.cl",
-            password: await bcrypt.hash("admin123", 10),
-            role: "admin",
+        const admin = await User.findOne({
+            where: {
+                email: "admin@petis.cl",
+            },
         });
+        if (!admin) {
+            User.create({
+                name: "admin",
+                email: "admin@petis.cl",
+                password: await bcrypt.hash("admin123", 10),
+                role: "admin",
+            });
+        }
+
         app.listen(3000, () => {
             console.log("Servidor escuchando en http://localhost:3000/");
         });

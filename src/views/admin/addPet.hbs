@@ -1,15 +1,17 @@
-<h1>Agregar De vista admin</h1>
+<h1>Agregar mascota</h1>
 <form class="mt-5" id="pet-form">
     <div class="mb-3">
         <label for="formFile" class="form-label">Carga una foto</label>
         <input class="form-control" type="file" name="photo" id="file" />
     </div>
+    {{> input name="idUser" type="text" id="user-id" label="id usuario" value=idUser }}
     {{> input name="name" type="text" id="pet-name" label="Nombre mascota" }}
     {{> input name="specie" type="text" id="pet-specie" label="Especie" }}
     {{> input name="breed" type="text" id="pet-breed" label="Raza" }}
     {{> input name="age" type="number" id="pet-age" label="Edad" }}
     <button type="submit" class="btn btn-primary">Agregar</button>
 </form>
+
 <script>
     const form = document.getElementById('pet-form');
     form.addEventListener('submit', async (event) => { 
@@ -19,10 +21,6 @@
         const res = await fetch(`/api/user/pet`, {
             method: "POST",
             body: formData,
-
-            headers: {
-                "Authorization": `Bearer ${document.cookie.split("=")[1]}`
-            }
         })
 
         const resJson = await res.json()

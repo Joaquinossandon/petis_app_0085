@@ -1,0 +1,57 @@
+<h1 class="mb-4">Gestion de usuarios</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col" id="id">Id</th>
+            <th scope="col" id="name">Nombre</th>
+            <th scope="col" id="email">Email</th>
+            <th scope="col" id="petCount">Mascotas</th>
+            <th scope="col" role="presentation">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each users}}
+            <tr>
+                <th scope="row">{{this.id}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.email}}</td>
+                <td>{{this.dataValues.petCount}}</td>
+                <td><a
+                        class="btn btn-primary"
+                        href="/admin/users/{{this.id}}"
+                    >Editar</a>
+                    <a
+                        class="btn btn-success"
+                        href="/admin/users/{{this.id}}/addPet"
+                    >Agregar mascota</a>
+                    <button class="btn btn-danger">Eliminar</button>
+                </td>
+            </tr>
+        {{/each}}
+    </tbody>
+</table>
+
+<script>
+    const theads = document.querySelectorAll('thead tr th:not([role=presentation])');
+      
+    theads.forEach(thead => {
+        thead.addEventListener('click', (event) => {
+        const fieldName = event.target.id
+        const search = location.search.replace('?', "").split("&")
+        const searchArr = search.map(value => value.split("="))
+        const searchQuery = Object.fromEntries(searchArr);
+        
+        location.href=`/admin/users?field=${fieldName}&order=${searchQuery.order === 'DESC' ? 'ASC' : 'DESC'}`;
+    })
+    })
+      
+      petBtn.addEventListener('click', () => {
+        const search = location.search.replace('?', "").split("&")
+        const searchArr = search.map(value => value.split("="))
+        const searchQuery = Object.fromEntries(searchArr);
+        
+        location.href=`/admin/users?field=petCount&order=${searchQuery.order === 'DESC' ? 'ASC' : 'DESC'}`;
+    })
+
+    console.log(theads)
+</script>

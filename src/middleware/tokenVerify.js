@@ -30,7 +30,7 @@ const verifyAccessView = (req, res, next) => {
 };
 
 const verifyAccessApi = (req, res, next) => {
-    const token = req.headers.authorization?.split(" ")[1]; // Bearer token
+    const token = req.cookies.token; // Bearer token
 
     try {
         const tokenPayload = tokenVerify(token);

@@ -1,0 +1,11 @@
+
+<h1>Editar usuario</h1>
+<form method="POST" action="/api/editUser/{{user.id}}" class="mt-5" id="register-form">
+    {{> input name="name" type="text" id="user-name" label="Nombre completo" value=user.name }}
+    {{> input name="email" type="email" id="user-email" label="Correo electronico" value=user.email }}
+    <div class="alert alert-danger d-none" role="alert">
+        
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar</button>
+</form>
+

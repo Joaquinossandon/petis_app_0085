@@ -44,6 +44,10 @@
 </nav>
 <script>
     const signoutBtn = document.getElementById("signout-btn");
-    signoutBtn.addEventListener('click', () => { console.log("Se presionó");
-    document.cookie = "token="; location.href = "/login" })
+    signoutBtn.addEventListener('click', async () => { 
+        const res = await fetch('/api/signout');
+        if(res.ok) {
+            location.href = "/login"
+        }
+     })
 </script>
